@@ -9,6 +9,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(WhatsEnviarPlugin.class);
+        registerPlugin(VozPlugin.class);
         registerPlugin(AtualizadorPlugin.class);
         super.onCreate(savedInstanceState);
         abrirOrcamento(getIntent());

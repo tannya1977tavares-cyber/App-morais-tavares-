@@ -7,7 +7,6 @@
     "libs": "mkdir -p www/lib && cp node_modules/jspdf/dist/jspdf.umd.min.js www/lib/ && (cp node_modules/@capacitor/core/dist/capacitor.js www/lib/ || touch www/lib/capacitor.js)"
   },
   "dependencies": {
-    "@capacitor-community/speech-recognition": "7.0.1",
     "@capacitor/android": "^7.0.0",
     "@capacitor/clipboard": "^7.0.0",
     "@capacitor/core": "^7.0.0",
