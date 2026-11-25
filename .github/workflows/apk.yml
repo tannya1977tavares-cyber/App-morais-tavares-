@@ -56,6 +56,22 @@ jobs:
           path: OrcamentoMorais.apk
 
       - name: Publicar pra baixar no celular
+        id: pub1
+        continue-on-error: true
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ env.VERSAO }}
+          name: Orçamento Morais Tavares 1.0.${{ env.VERSAO }}
+          body: Baixe o arquivo OrcamentoMorais.apk no celular e instale. Quem já tem o app recebe o aviso de versão nova.
+          files: OrcamentoMorais.apk
+
+      # o GitHub às vezes falha na hora de publicar: espera um pouco e tenta de novo
+      - name: Esperar e tentar publicar de novo
+        if: steps.pub1.outcome == 'failure'
+        run: sleep 90
+
+      - name: Publicar pra baixar no celular (2ª tentativa)
+        if: steps.pub1.outcome == 'failure'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ env.VERSAO }}
