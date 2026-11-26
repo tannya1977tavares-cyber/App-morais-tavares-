@@ -11,21 +11,29 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(WhatsEnviarPlugin.class);
         registerPlugin(VozPlugin.class);
         registerPlugin(AtualizadorPlugin.class);
+        registerPlugin(LerTextoPlugin.class);
+        registerPlugin(RecebidosPlugin.class);
         super.onCreate(savedInstanceState);
-        abrirOrcamento(getIntent());
+        tratar(getIntent());
     }
 
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        abrirOrcamento(intent);
+        tratar(intent);
     }
 
-    /** Toque no "Colar pedido" do widget: abre o orçamento já colando o pedido. */
-    private void abrirOrcamento(Intent intent) {
+    private void tratar(Intent intent) {
         try {
             if (intent == null || getBridge() == null) return;
+            // comprovante compartilhado pro app (WhatsApp, banco, galeria)
+            if (RecebidosPlugin.guardar(this, intent)) {
+                intent.setAction(Intent.ACTION_MAIN);
+                getBridge().getWebView().postDelayed(() -> getBridge().triggerWindowJSEvent("comprovantesRecebidos"), 1200);
+                return;
+            }
+            // toque no "Colar pedido" do widget
             String acao = intent.getStringExtra("abrir");
             if (acao == null) return;
             intent.removeExtra("abrir");

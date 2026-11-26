@@ -5,7 +5,7 @@ raiz = pathlib.Path(__file__).resolve().parent.parent
 app = raiz / "android" / "app" / "src" / "main"
 pacote = app / "java" / "br" / "com" / "moraistavares" / "orcamento"
 pacote.mkdir(parents=True, exist_ok=True)
-for nome in ("WhatsEnviarPlugin.java", "VozPlugin.java", "OrcamentoWidget.java", "AtualizadorPlugin.java", "MainActivity.java"):
+for nome in ("WhatsEnviarPlugin.java", "VozPlugin.java", "OrcamentoWidget.java", "AtualizadorPlugin.java", "LerTextoPlugin.java", "RecebidosPlugin.java", "MainActivity.java"):
     shutil.copy(raiz / "native" / nome, pacote / nome)
 
 manifesto = app / "AndroidManifest.xml"
@@ -30,6 +30,18 @@ if "<queries>" not in txt:
 for perm in ("android.permission.REQUEST_INSTALL_PACKAGES", "android.permission.RECORD_AUDIO"):
     if perm not in txt:
         txt = txt.replace("</manifest>", f'    <uses-permission android:name="{perm}" />\n</manifest>')
+# "Compartilhar" comprovante (foto/print/PDF) de outro app pra dentro do app
+if "android.intent.action.SEND" not in txt:
+    filtros = ""
+    for acao in ("android.intent.action.SEND", "android.intent.action.SEND_MULTIPLE"):
+        for tipo in ("image/*", "application/pdf"):
+            filtros += f"""            <intent-filter>
+                <action android:name="{acao}" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="{tipo}" />
+            </intent-filter>
+"""
+    txt = txt.replace("</activity>", filtros + "        </activity>", 1)
 manifesto.write_text(txt, encoding="utf-8")
 
 res = app / "res"
@@ -49,5 +61,8 @@ chave = (raiz / "assinatura" / "app.keystore").as_posix()
 if "signingConfigs.fixa" not in g:
     g = re.sub(r"android\s*\{", "android {\n    signingConfigs {\n        fixa {\n            storeFile file('" + chave + "')\n            storePassword 'android'\n            keyAlias 'androiddebugkey'\n            keyPassword 'android'\n        }\n    }\n", g, count=1)
     g = re.sub(r"buildTypes\s*\{", "buildTypes {\n        debug {\n            signingConfig signingConfigs.fixa\n        }", g, count=1)
+# leitor de texto dos comprovantes (no próprio celular, sem internet)
+if "mlkit:text-recognition" not in g:
+    g = g.replace("dependencies {", "dependencies {\n    implementation 'com.google.mlkit:text-recognition:16.0.1'", 1)
 gradle.write_text(g, encoding="utf-8")
 print("Orçamento Morais preparado, versão 1.0." + n)

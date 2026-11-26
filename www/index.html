@@ -371,7 +371,8 @@ function sum(){const r=linhas(),k=cli();
  $("s1s").textContent=k.nome?[k.nome,k.tel].filter(Boolean).join(" · "):"Cole o que tiver: nome, CPF, telefone, endereço";
  $("s2s").textContent=r.c.n+(r.c.km!=null?` · ${nf(r.c.km)} km`:"")+` · região ${r.c.r}`;
  $("s3s").textContent=items.length?`${items.length} produto${items.length>1?"s":""} · ${brl(r.tot)}`:"Areia e tijolo";
- if(r.semKm)$("cityNote").textContent="Falta a distância em km para calcular o frete da areia."}
+ if(r.semKm)$("cityNote").textContent="Falta a distância em km para calcular o frete da areia.";
+ try{window.dispatchEvent(new CustomEvent("orc:soma",{detail:{items:items.map(i=>({...i})),tot:r.tot}}))}catch(e){}}
 
 /* ---------- documento ---------- */
 const hoje=()=>new Date().toLocaleDateString("pt-BR");
@@ -437,7 +438,7 @@ function wppHref(){let t=$("cTel").value.replace(/\D/g,"");if(t.length===10||t.l
  return "https://wa.me/"+t+"?text="+encodeURIComponent(texto()+"\n\nSegue o PDF "+(doc==="O"?"do orçamento":"do recibo")+".")}
 async function enviar(outro){if(!pronto())return;const d=pdf(),nome=nomeArq(),txt=texto()+"\n\nSegue o PDF "+(doc==="O"?"do orçamento":"do recibo")+".";
  if(WE){try{const r=await WE.enviar({pdf:d.output("datauristring").split(",")[1],nome,tel:$("cTel").value,texto:outro?"":txt,compartilhar:!!outro,app:$("wapp").value});contar();
-   if(outro){msg("Escolha onde salvar ou mandar o PDF.")}else{setTimeout(()=>{novo();toast(r&&r.whatsapp?"PDF anexado no WhatsApp. Pronto pra outro orçamento!":"Escolha onde mandar o PDF. Pronto pra outro orçamento!")},600)}}
+   if(outro){msg("Escolha onde salvar ou mandar o PDF.")}else{try{const k=cli(),L=linhas();window.dispatchEvent(new CustomEvent("orc:enviado",{detail:{doc,num:$("num").value,cliente:k.nome,tel:k.tel,end:k.end,cidade:L.c.n,itens:items.map(i=>({...i})),total:L.tot,pagamento:$("pag").value}}))}catch(e){}setTimeout(()=>{novo();toast(r&&r.whatsapp?"PDF anexado no WhatsApp. Pronto pra outro orçamento!":"Escolha onde mandar o PDF. Pronto pra outro orçamento!")},600)}}
   catch(e){msg("Não deu pra mandar o PDF. Tente de novo.")}return}
  d.save(nome);contar();if(!outro)window.open(wppHref(),"_blank");msg(`PDF ${nome} salvo.`)}
 $("bWpp").onclick=()=>enviar(false);$("bPdf").onclick=()=>enviar(true);$("bBar").onclick=()=>enviar(false);
@@ -488,5 +489,8 @@ $("bNovo").onclick=novo;
 $("dt").value=hoje();$("city").value="Anápolis";cityChange();aSel();tSel();setDoc("O");draw();rota();
 }
 </script>
+<script src="lib/pdf.min.js" defer></script>
+<script src="lib/exceljs.min.js" defer></script>
+<script src="gestao.js" defer></script>
 </body>
 </html>

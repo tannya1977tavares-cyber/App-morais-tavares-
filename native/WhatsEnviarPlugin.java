@@ -33,7 +33,7 @@ public class WhatsEnviarPlugin extends Plugin {
             }
             Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", arq);
             Intent i = new Intent(Intent.ACTION_SEND);
-            i.setType("application/pdf");
+            i.setType(call.getString("tipo", "application/pdf"));
             i.putExtra(Intent.EXTRA_STREAM, uri);
             if (!texto.isEmpty()) i.putExtra(Intent.EXTRA_TEXT, texto);
             i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
